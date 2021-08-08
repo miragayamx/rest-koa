@@ -1,18 +1,16 @@
-const express = require('express');
-const auth = require('../middleware/auth');
+const Router = require('koa-router');
 const productoController = require('../controller/productoController');
 
-const router = express.Router();
+const router = new Router({
+    prefix: '/productos'
+});
 
-router.get('/listar', productoController.getList);
+router.get('/', productoController.getList);
 
-//DESDE AQUI TODAS LAS RUTAS REQUIEREN PERMISO
-router.use(auth);
+router.post('/', productoController.addItem);
 
-router.post('/agregar', productoController.addItem);
+router.put('/:id', productoController.updateItem);
 
-router.put('/actualizar/:id', productoController.updateItem);
-
-router.delete('/borrar/:id', productoController.deleteItem);
+router.delete('/:id', productoController.deleteItem);
 
 module.exports = router;

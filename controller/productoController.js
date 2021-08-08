@@ -1,44 +1,59 @@
 const productosDAO = require('../models/DAO/productoDAO');
 
-const getList = async (req, res) => {
-	let response;
-	const id = req.query.id;
-	if (!!id) {
-		response = await productosDAO.findById(id);
-	} else {
-		response = await productosDAO.find();
+const getList = async ({ request, response }, next) => {
+	try {
+		let productos;
+		const id = request.query.id;
+		if (!!id) {
+			productos = await productosDAO.findById(id);
+		} else {
+			productos = await productosDAO.find();
+		}
+		response.status = 200;
+		response.body = productos;
+	} catch (err) {
+		response.status = 404;
+		response.body = { error: err.message };
 	}
-	res.status(200).json(response);
+	next();
 };
 
-const addItem = async (req, res) => {
+const addItem = async ({ request, response }, next) => {
 	try {
-		const producto = req.body;
+		const producto = request.body;
 		producto.timestamp = Date.now();
 		await productosDAO.insert(producto);
-		res.status(201).json({ notification: 'Operación realizada con exito!' });
+		response.status = 200;
+		response.body = { notification: 'Operación realizada con exito!' };
 	} catch (err) {
-		res.status(400).json({ error: err.message });
+		response.status = 400;
+		response.body = { error: err.message };
 	}
+	next();
 };
 
-const updateItem = async (req, res) => {
+const updateItem = async ({ request, response }, next) => {
 	try {
-		const id = req.params.id;
-		const producto = req.body;
+		const id = request.params.id;
+		const producto = request.body;
 		await productosDAO.update(id, producto);
-		res.status(200).json({ notification: 'Operación realizada con exito!' });
+		response.status = 200;
+		response.body = { notification: 'Operación realizada con exito!' };
 	} catch (err) {
-		res.status(400).json({ error: err.message });
+		response.status = 400;
+		response.body = { error: err.message };
 	}
+	next();
 };
 
-const deleteItem = async (req, res) => {
+const deleteItem = async ({ request, response }, next) => {
 	try {
-		await productosDAO.delete(req.params.id);
-		res.status(200).json({ notification: 'Operación realizada con exito!' });
+		await productosDAO.delete(request.params.id);
+		response.status = 200;
+		response.body = { notification: 'Operación realizada con exito!' };
 	} catch (err) {
-		res.status(400).json({ error: err.message });
+		response.status = 400;
+		response.body = { error: err.message };
 	}
 };
 
